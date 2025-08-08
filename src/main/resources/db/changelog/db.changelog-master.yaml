@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-tables
+      author: modehate
+      changes:
+        - sqlFile:
+            path: ../migration/V1__create_tables.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: insert-roles
+      author: modehate
+      changes:
+        - sqlFile:
+            path: ../migration/V2__insert_roles.sql
+            relativeToChangelogFile: true
