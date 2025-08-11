@@ -1,0 +1,6 @@
+ALTER TABLE transfers ADD COLUMN user_id BIGINT NOT NULL;
+
+ALTER TABLE transfers ADD CONSTRAINT fk_transfer_user
+FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT;
+
+ALTER TABLE transfers ADD COLUMN description VARCHAR(255);

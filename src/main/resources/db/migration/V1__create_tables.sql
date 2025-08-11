@@ -17,7 +17,6 @@ CREATE TABLE users (
 CREATE TABLE cards (
     id SERIAL PRIMARY KEY,
     encrypted_number VARCHAR(255) NOT NULL,
-    owner_name VARCHAR(255) NOT NULL,
     expiry_date DATE NOT NULL,
     status VARCHAR(20) NOT NULL,
     balance NUMERIC(19, 2) NOT NULL,

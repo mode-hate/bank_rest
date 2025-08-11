@@ -16,12 +16,18 @@ public class Transfer {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "from_card_id", nullable = false)
+    @JoinColumn(name = "from_card_id")
     private Card fromCard;
 
     @ManyToOne
-    @JoinColumn(name = "to_card_id", nullable = false)
+    @JoinColumn(name = "to_card_id")
     private Card toCard;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User owner;
+
+    private String description;
 
     @Column(nullable = false)
     private BigDecimal amount;

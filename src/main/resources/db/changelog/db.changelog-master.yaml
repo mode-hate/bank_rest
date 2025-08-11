@@ -14,3 +14,27 @@ databaseChangeLog:
         - sqlFile:
             path: ../migration/V2__insert_roles.sql
             relativeToChangelogFile: true
+
+  - changeSet:
+      id: insert-users
+      author: modehate
+      changes:
+        - sqlFile:
+            path: ../migration/V3__insert_users.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: update-transfers-fks
+      author: modehate
+      changes:
+        - sqlFile:
+            path: ../migration/V4__update_transfer_fks.sql
+            relativeToChangelogFile: true
+
+  - changeSet:
+      id: add-transfers-columns
+      author: modehate
+      changes:
+        - sqlFile:
+            path: ../migration/V5__add_columns_to_transfers.sql
+            relativeToChangelogFile: true

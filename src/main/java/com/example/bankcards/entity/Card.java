@@ -21,9 +21,6 @@ public class Card {
     @Column(name = "encrypted_number", nullable = false)
     private String encryptedCardNumber;
 
-    @Column(name = "owner_name", nullable = false)
-    private String ownerName;
-
     @Column(name = "expiry_date", nullable = false)
     private LocalDate expiryDate;
 
