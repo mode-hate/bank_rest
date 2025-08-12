@@ -8,9 +8,9 @@ import com.example.bankcards.service.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest
@@ -23,22 +23,22 @@ public abstract class BaseControllerTest {
     @Autowired
     public ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     public UserService userService;
 
-    @MockBean
+    @MockitoBean
     public JwtProvider jwtProvider;
 
-    @MockBean
+    @MockitoBean
     public AuthenticationManager authenticationManager;
 
-    @MockBean
+    @MockitoBean
     public TransferService transferService;
 
-    @MockBean
-    CardAdminService cardAdmService;
+    @MockitoBean
+    public CardAdminService cardAdmService;
 
-    @MockBean
-    CardUserService cardUsrService;
+    @MockitoBean
+    public CardUserService cardUsrService;
 
 }

@@ -11,7 +11,6 @@ import com.example.bankcards.entity.Transfer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
 @Component
@@ -48,17 +47,32 @@ public class CardMapper {
 
 
     public TransferDto mapToTransferDto(Transfer transfer){
-        var fromNumber = cardEncryptor.decrypt(transfer.getFromCard().getEncryptedCardNumber());
-        var toNumber = cardEncryptor.decrypt(transfer.getToCard().getEncryptedCardNumber());
+
+        var fromCardInfo = mapToCardInfoDto(transfer.getFromCard());
+        var toCardInfo = mapToCardInfoDto(transfer.getToCard());
 
         return new TransferDto(
                 transfer.getId(),
-                new CardInfoDto(transfer.getFromCard().getId(), cardEncryptor.maskCardNumber(fromNumber)),
-                new CardInfoDto(transfer.getToCard().getId(), cardEncryptor.maskCardNumber(toNumber)),
+                fromCardInfo,
+                toCardInfo,
                 transfer.getAmount(),
                 transfer.getDescription(),
                 transfer.getCreatedAt()
         );
+    }
+
+    private CardInfoDto mapToCardInfoDto(Card card){
+        CardInfoDto cardInfo = null;
+
+        if (card != null) {
+            String cardNumber = cardEncryptor.decrypt(card.getEncryptedCardNumber());
+
+            cardInfo = new CardInfoDto(
+                    card.getId(),
+                    cardEncryptor.maskCardNumber(cardNumber)
+            );
+        }
+        return cardInfo;
     }
 
 

@@ -4,6 +4,7 @@ import com.example.bankcards.dto.card.*;
 import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.exception.CardNotFoundException;
+import com.example.bankcards.exception.PositiveBalanceException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.repository.CardSpecifications;
 import com.example.bankcards.service.user.UserService;
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
@@ -72,6 +74,9 @@ public class AdminCardServiceImpl implements CardAdminService{
     @Transactional
     public void deleteCard(Long cardId) {
         var card = findCard(cardId);
+        if (card.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+            throw new PositiveBalanceException(cardId);
+        }
         cardRepo.delete(card);
     }
 

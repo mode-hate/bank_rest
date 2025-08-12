@@ -8,6 +8,7 @@ import com.example.bankcards.entity.Card;
 import com.example.bankcards.entity.User;
 import com.example.bankcards.entity.enums.CardStatus;
 import com.example.bankcards.exception.CardNotFoundException;
+import com.example.bankcards.exception.PositiveBalanceException;
 import com.example.bankcards.repository.CardRepository;
 import com.example.bankcards.service.user.UserService;
 import com.example.bankcards.util.CardEncryptor;
@@ -56,6 +57,7 @@ class AdminCardServiceImplTest {
         card.setOwner(owner);
         card.setStatus(CardStatus.ACTIVE);
         card.setExpiryDate(LocalDate.now().plusYears(3L));
+        card.setBalance(BigDecimal.valueOf(100));
 
         var period = adminCardService.getClass()
                 .getDeclaredField("expiryPeriod");
@@ -98,11 +100,23 @@ class AdminCardServiceImplTest {
 
     @Test
     void deleteCard_ShouldDelete_WhenExists() {
+        card.setBalance(BigDecimal.valueOf(0L));
         when(cardRepo.findById(100L)).thenReturn(Optional.of(card));
 
         adminCardService.deleteCard(100L);
 
         verify(cardRepo).delete(card);
+    }
+
+    @Test
+    void deleteCard_ShouldThrow_WhenBalanceGreaterThenZero() {
+        card.setBalance(BigDecimal.valueOf(10L));
+        when(cardRepo.findById(100L)).thenReturn(Optional.of(card));
+
+        assertThatThrownBy(() -> adminCardService.deleteCard(100L))
+                .isInstanceOf(PositiveBalanceException.class);
+
+        verify(cardRepo, never()).delete(card);
     }
 
     @Test

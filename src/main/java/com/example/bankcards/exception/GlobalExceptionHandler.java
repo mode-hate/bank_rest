@@ -46,7 +46,8 @@ public class GlobalExceptionHandler {
             RoleNotFoundException.class,
             CardNotFoundException.class,
             NotCardHolderException.class,
-            CardTransferException.class
+            CardTransferException.class,
+            PositiveBalanceException.class
     })
     public ResponseEntity<ErrorResponse> handleInputsErrors(RuntimeException ex){
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Exception", ex.getMessage());

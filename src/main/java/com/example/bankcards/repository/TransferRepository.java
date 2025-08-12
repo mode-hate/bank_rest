@@ -25,8 +25,8 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 
     @Query("""
             select distinct t from Transfer t
-            join fetch t.fromCard
-            join fetch t.toCard
+            left join fetch t.fromCard
+            left join fetch t.toCard
             join fetch t.owner
             where t.id in :ids
             """)
