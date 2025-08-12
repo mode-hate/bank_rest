@@ -44,3 +44,4 @@
    ```
 4. Приложение будет доступно по адресу: http://localhost:8888
 5. Документация API доступна по адресу: http://localhost:8888/swagger-ui/index.html
+6. Пользователь с ролью ADMIN: test_admin   adminpass
