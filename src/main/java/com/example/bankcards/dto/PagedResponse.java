@@ -15,7 +15,10 @@ import java.util.List;
 @Schema(description = "Standard paginated response")
 public class PagedResponse<T> {
 
-    @ArraySchema(schema = @Schema(description = "List of page elements"))
+    @ArraySchema(
+            arraySchema = @Schema(description = "List of page elements"),
+            schema = @Schema(implementation = Object.class)
+    )
     private final List<T> data;
 
     @Schema(description = "Total elements", example = "42")

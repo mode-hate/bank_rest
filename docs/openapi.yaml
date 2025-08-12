@@ -1,1 +1,743 @@
-# Здесь будет OpenAPI описание всех доступных эндпоинтов и моделей данных.
+openapi: 3.1.0
+info:
+  title: Bank Card Management API
+  description: "API for managing bank cards, users, and roles"
+  version: "1.0"
+servers:
+- url: http://localhost:8888
+  description: Generated server url
+security:
+- bearerAuth: []
+tags:
+- name: Managing users
+  description: API for admins to manage users
+- name: Transfers between users cards
+  description: API for users to make transfers between their cards
+- name: Authentication
+  description: API for users to log in
+- name: Managing users cards
+  description: API for admins to manage cards
+- name: Fetching cards data
+  description: API for users to see their cards data
+paths:
+  /api/users/{id}/username:
+    put:
+      tags:
+      - Managing users
+      summary: changes username
+      description: Only accessible by ADMIN role
+      operationId: updateUsername
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUsernameRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+  /api/users/{id}/role:
+    put:
+      tags:
+      - Managing users
+      summary: changes user role
+      description: Only accessible by ADMIN role
+      operationId: updateUserRole
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRoleRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+  /api/cards/{id}:
+    get:
+      tags:
+      - Fetching cards data
+      summary: requests to show a card balance
+      operationId: showCardBalance
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/BalanceDto"
+    put:
+      tags:
+      - Fetching cards data
+      summary: requests to block a card
+      operationId: requestBlockCard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/admin/cards/{id}/block:
+    put:
+      tags:
+      - Managing users cards
+      summary: blocks a card
+      operationId: blockCard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/admin/cards/{id}/activate:
+    put:
+      tags:
+      - Managing users cards
+      summary: activates a card
+      operationId: activateCard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+  /api/users:
+    get:
+      tags:
+      - Managing users
+      summary: retrieve all users (paginated)
+      description: Only accessible by ADMIN role
+      operationId: getAllUsers
+      parameters:
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserPagedResponse"
+    post:
+      tags:
+      - Managing users
+      summary: creates new user
+      description: Only accessible by ADMIN role
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+  /api/transfers:
+    post:
+      tags:
+      - Transfers between users cards
+      summary: performs a transfer between 2 user cards
+      operationId: performTransfer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TransferDto"
+  /api/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: users log in
+      description: "accepts username & password, returns JWT token"
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+        required: true
+      responses:
+        "200":
+          description: successful log in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "401":
+          description: invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/admin/cards:
+    get:
+      tags:
+      - Managing users cards
+      summary: gets paginated cards list
+      operationId: getAllCards
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          description: Zero-based page index
+          example: 0
+          minimum: 0
+        example: 0
+      - name: size
+        in: query
+        description: Number of items per page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+          description: Number of items per page
+          example: 10
+          maximum: 50
+          minimum: 1
+        example: 10
+      - name: status
+        in: query
+        description: Filter cards by status
+        required: false
+        schema:
+          type: string
+          description: Filter cards by status
+          enum:
+          - ACTIVE
+          - BLOCKED
+          - EXPIRED
+          - BLOCK_REQUESTED
+          example: ACTIVE
+        example: ACTIVE
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CardPagedResponse"
+    post:
+      tags:
+      - Managing users cards
+      summary: creates a new card
+      operationId: createCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCardRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CardDto"
+  /api/users/{id}:
+    get:
+      tags:
+      - Managing users
+      summary: retrieves user by id
+      description: Only accessible by ADMIN role
+      operationId: getUserById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDto"
+  /api/transfers/{cardId}:
+    get:
+      tags:
+      - Transfers between users cards
+      summary: finds paginated list of transfers for a card
+      operationId: getCardTransfers
+      parameters:
+      - name: cardId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: pageable
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TransferPagedResponse"
+  /api/cards:
+    get:
+      tags:
+      - Fetching cards data
+      summary: gets paginated cards list of the current user
+      operationId: getUserCards
+      parameters:
+      - name: page
+        in: query
+        description: Zero-based page index
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+          description: Zero-based page index
+          example: 0
+          minimum: 0
+        example: 0
+      - name: size
+        in: query
+        description: Number of items per page
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+          description: Number of items per page
+          example: 10
+          maximum: 50
+          minimum: 1
+        example: 10
+      - name: status
+        in: query
+        description: Filter cards by status
+        required: false
+        schema:
+          type: string
+          description: Filter cards by status
+          enum:
+          - ACTIVE
+          - BLOCKED
+          - EXPIRED
+          - BLOCK_REQUESTED
+          example: ACTIVE
+        example: ACTIVE
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/CardPagedResponse"
+  /api/admin/cards/{id}:
+    delete:
+      tags:
+      - Managing users cards
+      summary: deletes a card
+      operationId: deleteCard
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: No Content
+components:
+  schemas:
+    UpdateUsernameRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 16
+          minLength: 3
+      required:
+      - username
+    UserDto:
+      type: object
+      description: User data transfer object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: User unique identifier
+          example: 1
+        username:
+          type: string
+          description: Username of the user
+          example: john_doe
+        role:
+          type: string
+          description: Role assigned to the user
+          example: ROLE_USER
+    UpdateUserRoleRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+          - ROLE_ADMIN
+          - ROLE_USER
+      required:
+      - role
+    CreateUserRequest:
+      type: object
+      description: Request to create a new user
+      properties:
+        username:
+          type: string
+          description: Username for the new user
+          example: test_user
+          maxLength: 16
+          minLength: 3
+        password:
+          type: string
+          description: Password for the new user
+          example: userpass
+          maxLength: 24
+          minLength: 6
+        role:
+          type: string
+          description: Role assigned to the new user
+          enum:
+          - ROLE_ADMIN
+          - ROLE_USER
+          example: ROLE_USER
+      required:
+      - password
+      - role
+      - username
+    TransferRequest:
+      type: object
+      properties:
+        fromCardId:
+          type: integer
+          format: int64
+        toCardId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+          minimum: 0.01
+        description:
+          type: string
+          maxLength: 250
+          minLength: 5
+      required:
+      - amount
+      - fromCardId
+      - toCardId
+    CardInfoDto:
+      type: object
+      description: Basic info about a card
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Card unique identifier
+          example: 1
+        maskedNumber:
+          type: string
+          description: Masked card number
+          example: '**** **** **** 5678'
+    TransferDto:
+      type: object
+      description: Information about a card transfer
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Transfer unique identifier
+          example: 12
+        fromCard:
+          $ref: "#/components/schemas/CardInfoDto"
+          description: Source card information
+        toCard:
+          $ref: "#/components/schemas/CardInfoDto"
+          description: Destination card information
+        amount:
+          type: number
+          description: Amount transferred
+          example: 150.75
+        description:
+          type: string
+          description: Transfer description
+          example: "Payment for invoice #1234"
+        createdAt:
+          type: string
+          format: date-time
+          description: Date and time when transfer was created
+          example: 2025-08-12T14:30:00
+    AuthRequest:
+      type: object
+      description: Login request
+      properties:
+        username:
+          type: string
+          example: test_admin
+          maxLength: 16
+          minLength: 3
+        password:
+          type: string
+          example: adminpass
+          maxLength: 24
+          minLength: 6
+      required:
+      - password
+      - username
+    AuthSuccessResponse:
+      type: object
+      description: JWT token response
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    ErrorResponse:
+      type: object
+      description: Standard error response
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: ValidationFailed
+        message:
+          type: string
+          description: Detailed error message
+          example: Username must not be blank
+    CreateCardRequest:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+          minLength: 1
+          pattern: "\\d{16}"
+        owner:
+          type: string
+          maxLength: 16
+          minLength: 3
+        balance:
+          type: number
+          minimum: 0.01
+      required:
+      - balance
+      - cardNumber
+      - owner
+    CardDto:
+      type: object
+      description: Data about a bank card
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier of the card
+          example: 123
+        maskedNumber:
+          type: string
+          description: Masked card number
+          example: '**** **** **** 1234'
+        ownerName:
+          type: string
+          description: Name of the card owner
+          example: john_doe
+        expiryDate:
+          type: string
+          format: date
+          description: Card expiration date
+          example: 2025-12-31
+        status:
+          type: string
+          description: Current status of the card
+          enum:
+          - ACTIVE
+          - BLOCKED
+          - EXPIRED
+          - BLOCK_REQUESTED
+          example: ACTIVE
+    Pageable:
+      type: object
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+        sort:
+          type: array
+          items:
+            type: string
+    UserPagedResponse:
+      type: object
+      description: Paginated list of users
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserDto"
+            description: List of user objects
+        totalElements:
+          type: integer
+          format: int64
+          description: Total elements
+          example: 42
+        totalPages:
+          type: integer
+          format: int32
+          description: Total pages
+          example: 5
+        pageNumber:
+          type: integer
+          format: int32
+          description: Zero indexed page number
+          example: 0
+        pageSize:
+          type: integer
+          format: int32
+          description: Page size
+          example: 10
+    TransferPagedResponse:
+      type: object
+      description: Paginated list of transfers
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransferDto"
+            description: List of transfer objects
+        totalElements:
+          type: integer
+          format: int64
+          description: Total elements
+          example: 42
+        totalPages:
+          type: integer
+          format: int32
+          description: Total pages
+          example: 5
+        pageNumber:
+          type: integer
+          format: int32
+          description: Zero indexed page number
+          example: 0
+        pageSize:
+          type: integer
+          format: int32
+          description: Page size
+          example: 10
+    CardPagedResponse:
+      type: object
+      description: Paginated list of cards
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CardDto"
+            description: List of card objects
+        totalElements:
+          type: integer
+          format: int64
+          description: Total elements
+          example: 42
+        totalPages:
+          type: integer
+          format: int32
+          description: Total pages
+          example: 5
+        pageNumber:
+          type: integer
+          format: int32
+          description: Zero indexed page number
+          example: 0
+        pageSize:
+          type: integer
+          format: int32
+          description: Page size
+          example: 10
+    BalanceDto:
+      type: object
+      description: Represents card balance and masked card number
+      properties:
+        balance:
+          type: number
+          description: Current balance on the card
+          example: 1234.56
+        maskedCard:
+          type: string
+          description: Masked card number (e.g. **** **** **** 1234)
+          example: '**** **** **** 1234'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
